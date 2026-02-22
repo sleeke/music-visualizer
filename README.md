@@ -1,4 +1,4 @@
-# mnusic-visualizer
+# music-visualizer
 
 A **Progressive Web App** that captures microphone input and renders a real-time **graphic equalizer** display using the Web Audio API and HTML5 Canvas.
 

@@ -1,5 +1,5 @@
 /**
- * Mnusic Visualizer – Graphic Equalizer
+ * Music Visualizer – Graphic Equalizer
  *
  * Uses the Web Audio API to read microphone input, analyse frequency
  * data via an AnalyserNode and render a styled bar-graph equalizer on

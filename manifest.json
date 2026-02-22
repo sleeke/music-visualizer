@@ -1,6 +1,6 @@
 {
-  "name": "Mnusic Visualizer",
-  "short_name": "Mnusic",
+  "name": "Music Visualizer",
+  "short_name": "Music",
   "description": "A graphic equalizer that visualizes microphone input in real time",
   "start_url": "/",
   "display": "standalone",
