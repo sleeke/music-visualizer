@@ -30,7 +30,7 @@ const RIPPLE_SPEED         = 2.0;  // base radius growth per frame (CSS px)
 const RIPPLE_MAX_COUNT     = 10;   // maximum concurrent ripples
 const BEAT_THRESHOLD_RATIO = 1.35; // energy vs rolling average to detect a beat
 const BEAT_HISTORY_LEN     = 43;   // frames of energy history (~1.5 s @ 30 fps)
-const MESH_CELL_SIZE       = 45;   // hex cell "radius" – centre to corner (CSS px)
+const MESH_CELL_SIZE       = 45;   // hex cell "radius" – center to corner (CSS px)
 
 // ─── State ───────────────────────────────────────────────────────────────────
 
@@ -137,7 +137,7 @@ function getRangeEnergy(data, startBin, endBin) {
 function drawHexMesh(w, h, hue, alpha) {
   const s    = MESH_CELL_SIZE;
   const hexW = s * Math.sqrt(3);  // pointy-top hex: width = s*√3
-  const rowH = s * 1.5;           // vertical distance between row centres
+  const rowH = s * 1.5;           // vertical distance between row centers
   const rows = Math.ceil(h / rowH) + 2;
   const cols = Math.ceil(w / hexW) + 2;
 
