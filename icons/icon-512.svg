@@ -1,0 +1,17 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'>
+  <rect width='512' height='512' rx='102.4' fill='#0a0a0f'/>
+  <defs>
+    <linearGradient id='g' x1='0' y1='1' x2='0' y2='0'>
+      <stop offset='0%' stop-color='#06b6d4'/>
+      <stop offset='50%' stop-color='#7c3aed'/>
+      <stop offset='100%' stop-color='#ec4899'/>
+    </linearGradient>
+  </defs>
+  <rect x='40.96' y='281.6' width='40.96' height='179.2' rx='2' fill='url(#g)'/>
+  <rect x='102.4' y='179.2' width='40.96' height='281.6' rx='2' fill='url(#g)'/>
+  <rect x='163.84' y='102.4' width='40.96' height='358.4' rx='2' fill='url(#g)'/>
+  <rect x='225.28' y='51.2' width='40.96' height='409.6' rx='2' fill='url(#g)'/>
+  <rect x='286.72' y='128' width='40.96' height='332.8' rx='2' fill='url(#g)'/>
+  <rect x='348.16' y='215.04' width='40.96' height='245.76' rx='2' fill='url(#g)'/>
+  <rect x='409.6' y='307.2' width='40.96' height='153.6' rx='2' fill='url(#g)'/>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'>
+  <rect width='192' height='192' rx='38.400000000000006' fill='#0a0a0f'/>
+  <defs>
+    <linearGradient id='g' x1='0' y1='1' x2='0' y2='0'>
+      <stop offset='0%' stop-color='#06b6d4'/>
+      <stop offset='50%' stop-color='#7c3aed'/>
+      <stop offset='100%' stop-color='#ec4899'/>
+    </linearGradient>
+  </defs>
+  <rect x='15.36' y='105.60000000000001' width='15.36' height='67.19999999999999' rx='2' fill='url(#g)'/>
+  <rect x='38.400000000000006' y='67.19999999999999' width='15.36' height='105.60000000000001' rx='2' fill='url(#g)'/>
+  <rect x='61.44' y='38.400000000000006' width='15.36' height='134.39999999999998' rx='2' fill='url(#g)'/>
+  <rect x='84.48' y='19.200000000000003' width='15.36' height='153.60000000000002' rx='2' fill='url(#g)'/>
+  <rect x='107.52000000000001' y='48' width='15.36' height='124.80000000000001' rx='2' fill='url(#g)'/>
+  <rect x='130.56' y='80.64' width='15.36' height='92.16' rx='2' fill='url(#g)'/>
+  <rect x='153.60000000000002' y='115.19999999999999' width='15.36' height='57.599999999999994' rx='2' fill='url(#g)'/>
+</svg>
