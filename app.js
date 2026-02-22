@@ -27,10 +27,12 @@ const GRADIENT_STOPS = [
 // ─── Ripple constants ─────────────────────────────────────────────────────────
 
 const RIPPLE_SPEED         = 2.0;  // base radius growth per frame (CSS px)
-const RIPPLE_MAX_COUNT     = 10;   // maximum concurrent ripples
+const RIPPLE_MAX_COUNT     = 12;   // maximum concurrent ripples
 const BEAT_THRESHOLD_RATIO = 1.35; // energy vs rolling average to detect a beat
 const BEAT_HISTORY_LEN     = 43;   // frames of energy history (~1.5 s @ 30 fps)
 const MESH_CELL_SIZE       = 45;   // hex cell "radius" – center to corner (CSS px)
+const MIN_BEAT_GAP_MS         = 250;  // ~240 BPM max; prevents double-firing on one beat
+const BEAT_INTERVAL_BUF_SIZE  = 8;    // number of inter-beat intervals tracked for BPM
 
 // ─── State ───────────────────────────────────────────────────────────────────
 
@@ -44,11 +46,14 @@ let peakTimers  = null;
 let isRunning   = false;
 
 // Ripple state
-let ripples     = [];
-let beatEnergy  = null;   // Float32Array, allocated in startVisualizer
-let beatHistIdx = 0;
-let beatActive  = false;
-let meshAlpha   = 0;
+let ripples         = [];
+let beatEnergy      = null;   // Float32Array, allocated in startVisualizer
+let beatHistIdx     = 0;
+let lastBeatMs      = 0;      // timestamp of the last confirmed beat (ms)
+let beatCount       = 0;      // total beats since start; mod 4 = position in bar
+let beatIntervalBuf = null;   // circular buffer of inter-beat intervals (ms)
+let beatIntervalIdx = 0;
+let meshAlpha       = 0;
 
 // ─── DOM refs ────────────────────────────────────────────────────────────────
 
@@ -310,11 +315,35 @@ function drawRippleFrame() {
   const avgEnergy = beatEnergy.reduce((s, v) => s + v, 0) / beatEnergy.length;
   const isBeat    = energy > avgEnergy * BEAT_THRESHOLD_RATIO && energy > 0.05;
 
-  if (isBeat && !beatActive && ripples.length < RIPPLE_MAX_COUNT) {
-    ripples.push({ radius: 4, hue, energy });
-    beatActive = true;
+  // ── Rhythm-aware beat handling ─────────────────────────────────────────────
+  // Use a time-based lockout instead of an energy-drop latch so that each
+  // musical beat spawns exactly one ripple, even if the energy stays elevated.
+  const nowMs = performance.now();
+  const gapOk = (nowMs - lastBeatMs) >= MIN_BEAT_GAP_MS;
+
+  if (isBeat && gapOk) {
+    // Track inter-beat interval for BPM estimation
+    if (lastBeatMs > 0) {
+      beatIntervalBuf[beatIntervalIdx] = nowMs - lastBeatMs;
+      beatIntervalIdx = (beatIntervalIdx + 1) % beatIntervalBuf.length;
+    }
+    lastBeatMs = nowMs;
+
+    // Bar position in 4/4 time: 0 = downbeat, 2 = mid-bar, 1/3 = backbeats.
+    const barPos     = beatCount % 4;
+    const isDownbeat = barPos === 0;
+    const strength   = isDownbeat ? 1.0 : (barPos === 2 ? 0.75 : 0.5);
+
+    // Primary ripple – downbeat starts with a larger initial radius
+    if (ripples.length < RIPPLE_MAX_COUNT) {
+      ripples.push({ radius: isDownbeat ? 12 : 4, hue, energy, strength });
+    }
+    // Second outer ring on the downbeat to visually mark the bar start
+    if (isDownbeat && ripples.length < RIPPLE_MAX_COUNT) {
+      ripples.push({ radius: 26, hue, energy: energy * 0.6, strength: 0.85 });
+    }
+    beatCount++;
   }
-  if (!isBeat) beatActive = false;
 
   // ── Background ────────────────────────────────────────────────────────────
   ctx.fillStyle = '#0a0a0f';
@@ -341,10 +370,10 @@ function drawRippleFrame() {
 
   for (const r of ripples) {
     r.radius += RIPPLE_SPEED + r.energy * 2.5;
-    const alpha = Math.pow(Math.max(0, 1 - r.radius / maxR), 1.2);
+    const alpha = Math.pow(Math.max(0, 1 - r.radius / maxR), 1.2) * r.strength;
     if (alpha < 0.01) continue;
 
-    const lw = 1.5 + r.energy * 3.5;
+    const lw = (1.5 + r.energy * 3.5) * r.strength;
 
     // Soft outer glow ring
     ctx.beginPath();
@@ -415,11 +444,14 @@ async function startVisualizer() {
     peakTimers = new Int32Array(parseInt(selBands.value, 10));
 
     // Ripple state initialisation
-    ripples     = [];
-    beatEnergy  = new Float32Array(BEAT_HISTORY_LEN);
-    beatHistIdx = 0;
-    beatActive  = false;
-    meshAlpha   = 0;
+    ripples         = [];
+    beatEnergy      = new Float32Array(BEAT_HISTORY_LEN);
+    beatHistIdx     = 0;
+    lastBeatMs      = 0;
+    beatCount       = 0;
+    beatIntervalBuf = new Float32Array(BEAT_INTERVAL_BUF_SIZE);
+    beatIntervalIdx = 0;
+    meshAlpha       = 0;
 
     selBands.addEventListener('change', () => {
       const n = parseInt(selBands.value, 10);
@@ -448,10 +480,13 @@ function stopVisualizer() {
   if (audioCtx)  { audioCtx.close(); audioCtx = null; }
   analyser = null;
   ripples     = [];
-  if (beatEnergy) beatEnergy.fill(0);
-  beatHistIdx = 0;
-  beatActive  = false;
-  meshAlpha   = 0;
+  if (beatEnergy)      beatEnergy.fill(0);
+  if (beatIntervalBuf) beatIntervalBuf.fill(0);
+  beatHistIdx     = 0;
+  lastBeatMs      = 0;
+  beatCount       = 0;
+  beatIntervalIdx = 0;
+  meshAlpha       = 0;
   overlay.classList.remove('hidden');
   btnStart.disabled = false;
   btnStop.disabled  = true;
